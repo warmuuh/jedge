@@ -37,7 +37,6 @@ public class MessageFlow {
   private final MessageEnvelopeSerde serde = new MessageEnvelopeSerde();
 
   public void run(Connection connection) throws Exception {
-    log.info("Sending initial");
     sendInitialMessage(connection);
     log.info("polling");
     pollMessagesAndSendNextSteps(connection);
@@ -58,7 +57,7 @@ public class MessageFlow {
         }
         Optional<ProtocolMessage> response = (Optional<ProtocolMessage>)step.getStep().apply(srvResponse);
         if (response.isEmpty()){
-          log.info("|| End of flow");
+          //nothing to do, lets continue in the flow
           continue;
 //          break outer;
         }
@@ -73,6 +72,7 @@ public class MessageFlow {
 
   private void sendInitialMessage(Connection connection) throws Exception {
     ProtocolMessage firstMessage = initialStep.get();
+    log.info("Sending initial: " + firstMessage);
     MessageEnvelope envelope = serde.serialize(firstMessage);
     connection.writeMessage(envelope);
   }

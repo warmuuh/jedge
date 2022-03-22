@@ -4,26 +4,36 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 
 public class MessageEnvelopeSerde {
 
-  Map<Character, Class<? extends ProtocolMessage>> typeRegistry = Map.of(
-      'V', ClientHandshakeImpl.class,
-      'v', ServerHandshakeImpl.class,
-      'E', ErrorResponseImpl.class,
-      'R', AuthenticationImpl.class,
-      'p', AuthenticationSASLInitialResponseImpl.class,
-      'r', AuthenticationSASLResponseImpl.class,
-      'Q', ExecuteScriptImpl.class,
-      'C', CommandCompleteImpl.class
-  );
+  static final Map<Character, Class<? extends ProtocolMessage>> responseRegistry;
+  static final Map<Class<? extends ProtocolMessage>, Character> requestRegistry;
+  static {
+    requestRegistry = new HashMap<>();
+    requestRegistry.put(ClientHandshakeImpl.class, 'V');
+    requestRegistry.put(AuthenticationSASLInitialResponseImpl.class, 'p');
+    requestRegistry.put(AuthenticationSASLResponseImpl.class, 'r');
+    requestRegistry.put(ExecuteScriptImpl.class, 'Q');
+    requestRegistry.put(PrepareImpl.class, 'P');
+    requestRegistry.put(ExecuteImpl.class, 'E');
+
+    responseRegistry = new HashMap<>();
+    responseRegistry.put('v', ServerHandshakeImpl.class);
+    responseRegistry.put('E', ErrorResponseImpl.class);
+    responseRegistry.put('R', AuthenticationImpl.class);
+    responseRegistry.put('C', CommandCompleteImpl.class);
+    responseRegistry.put('1', PrepareCompleteImpl.class);
+    responseRegistry.put('D', DataImpl.class);
+  }
 
 
   public ProtocolMessage deserialize(MessageEnvelope envelope) throws Exception {
-    Class<? extends ProtocolMessage> msgType = typeRegistry.get(envelope.mtype);
+    Class<? extends ProtocolMessage> msgType = responseRegistry.get(envelope.mtype);
     if (msgType == null) {
       System.out.println("Unknown message type: " + envelope.mtype);
       System.out.println(IOUtils.toString(new ByteArrayInputStream(envelope.message)));
@@ -38,10 +48,7 @@ public class MessageEnvelopeSerde {
 
   public MessageEnvelope serialize(ProtocolMessage message) throws Exception {
 
-    char msgType = typeRegistry.entrySet().stream()
-        .filter(e -> e.getValue().equals(message.getClass()))
-        .findAny()
-        .map(Entry::getKey)
+    char msgType = Optional.ofNullable(requestRegistry.get(message.getClass()))
         .orElseThrow(() -> new IllegalArgumentException("Unregistered message class: " + message.getClass()));
 
     ByteArrayOutputStream bout = new ByteArrayOutputStream();

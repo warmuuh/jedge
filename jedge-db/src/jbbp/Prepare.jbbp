@@ -1,0 +1,20 @@
+
+// A set of message headers.
+ushort          num_attributes;
+header          [num_attributes] {
+  // Header code (specific to the type of the Message).
+  ushort          code;
+
+  // Header data.
+  string           value;
+}
+
+ubyte io_format;
+ubyte expected_cardinality;
+
+// Prepared statement name. Currently must
+// be empty.
+string statement_name;
+
+// Command text.
+string command;

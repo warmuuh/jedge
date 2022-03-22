@@ -1,0 +1,13 @@
+// Encoded output data array. The array is
+// currently always of size 1.
+ushort          num_data;
+data          [num_data] {
+  int num_data2;
+  ubyte[num_data2]          data;
+}
+
+// Prepared statement name.
+string statement_name;
+
+// Encoded argument data.
+string arguments;
