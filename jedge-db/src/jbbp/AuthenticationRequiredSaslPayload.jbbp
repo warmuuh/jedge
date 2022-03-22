@@ -1,0 +1,3 @@
+int numMethods;
+
+string [numMethods] methods;

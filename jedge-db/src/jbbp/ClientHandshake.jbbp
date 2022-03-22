@@ -1,0 +1,33 @@
+
+// Requested protocol major version.
+ushort          major_ver;
+
+// Requested protocol minor version.
+ushort          minor_ver;
+
+
+// Connection parameters.
+ushort          num_params;
+connectionParam [num_params]{
+    string name;
+    string value;
+}
+
+ushort          num_extensions;
+protocolExtension [num_extensions] {
+  // Extension name.
+  stringj          name;
+
+  // A set of extension headers.
+  ushort          num_headers;
+  header          [num_headers] {
+    // Header code (specific to the type of the
+    // Message).
+    ushort          code;
+
+    // Header data.
+    stringj           value;
+  }
+}
+
+

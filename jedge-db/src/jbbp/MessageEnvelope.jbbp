@@ -1,0 +1,3 @@
+ubyte           mtype;
+int         message_length;
+byte[message_length-4]  message;

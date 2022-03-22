@@ -1,0 +1,19 @@
+# docker compose file for setting up a test environment
+# so that the service can be started without having
+# to setup tunnels
+version: '2.2'
+services:
+  edgedb2:
+    image: edgedb/edgedb:nightly_2-dev6413_cv202203010000
+    ports:
+      - "5656:5656"
+    hostname: edgedb
+    volumes:
+      - "./dbschema:/dbschema"
+    environment:
+      EDGEDB_SERVER_PASSWORD: password
+      EDGEDB_SERVER_TLS_CERT_MODE: generate_self_signed
+      EDGEDB_SERVER_SECURITY: insecure_dev_mode
+    container_name: edgedb2
+
+# edgedb -P 5656 --tls-security insecure --password

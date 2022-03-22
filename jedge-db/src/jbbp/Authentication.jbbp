@@ -1,0 +1,3 @@
+int auth_status;
+
+byte[_]  data;

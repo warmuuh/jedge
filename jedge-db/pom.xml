@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>jedge</artifactId>
+    <groupId>com.github.warmuuh</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>jedge-db</artifactId>
+
+  <properties>
+    <jbpp.version>2.0.3</jbpp.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.igormaznitsa</groupId>
+      <artifactId>jbbp</artifactId>
+      <version>${jbpp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.ongres.scram</groupId>
+      <artifactId>client</artifactId>
+      <version>2.1</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.igormaznitsa</groupId>
+        <artifactId>jbbp-maven-plugin</artifactId>
+        <version>${jbpp.version}</version>
+        <executions>
+          <execution>
+            <id>gen-jbbp-src</id>
+            <configuration>
+              <packageName>com.github.warmuuh.jedge.db.protocol</packageName>
+              <customTypes>
+                <customType>string</customType>
+              </customTypes>
+              <interfaces>com.github.warmuuh.jedge.db.protocol.ProtocolMessage</interfaces>
+            </configuration>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
