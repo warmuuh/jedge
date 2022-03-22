@@ -30,7 +30,7 @@ public class PrepareImpl extends Prepare {
 
   public static PrepareImpl of(String script, String commandName) {
     PrepareImpl command = new PrepareImpl();
-    command.io_format = (char)IOFormat.BINARY.id;
+    command.io_format = (char)IOFormat.JSON.id;
     command.expected_cardinality = (char)Cardinality.MANY.id;
     command.command = new JBBPFieldString(null, script);
     command.statement_name = new JBBPFieldString(null, commandName);

@@ -9,9 +9,11 @@ import com.github.warmuuh.jedge.db.flow.ScriptFlow;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponse;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponseImpl;
 import com.github.warmuuh.jedge.db.protocol.ClientHandshakeImpl;
+import com.github.warmuuh.jedge.db.protocol.ExecuteImpl;
 import com.github.warmuuh.jedge.db.protocol.LoggingMessageVisitor;
 import com.github.warmuuh.jedge.db.protocol.MessageEnvelope;
 import com.github.warmuuh.jedge.db.protocol.MessageEnvelopeSerde;
+import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.ongres.scram.client.ScramClient;
 import com.ongres.scram.client.ScramClient.ChannelBinding;
@@ -21,18 +23,39 @@ import java.util.List;
 
 public class ConnectionTest {
 
+  private static final MessageEnvelopeSerde serde = new MessageEnvelopeSerde();
+
   public static void main(String[] args) throws Exception {
 
 
     try (Connection connection = Connection.connect(new InetSocketAddress("localhost", 10701))) {
       new AuthFlow("edgedb", "edgedb", "password").run(connection);
       new GranularFlow("select Movie;").run(connection);
+
+//      System.out.println("send message");
+//      sendMessage(PrepareImpl.of("select Movie;", ""), connection);
+//      System.out.println("poll");
+//      readAllMessages(connection);
+//
+//      sendMessage(ExecuteImpl.of("",""), connection);
+//      System.out.println("poll after execute 1");
+//      readAllMessages(connection);
+//      System.out.println("poll after execute 2");
+//      readAllMessages(connection);
+//      System.out.println("poll after execute 3");
+//      readAllMessages(connection);
+
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  private static void readAllMessages(MessageEnvelopeSerde serde, Connection connection) throws Exception {
+  private static void sendMessage(ProtocolMessage message, Connection connection) throws Exception {
+    MessageEnvelope serializedMessage = serde.serialize(message);
+    connection.writeMessage(serializedMessage);
+  }
+
+  private static void readAllMessages(Connection connection) throws Exception {
     List<MessageEnvelope> serverMessages = connection.readMessages();
     for (MessageEnvelope serverMessage : serverMessages) {
       ProtocolMessage message = serde.deserialize(serverMessage);

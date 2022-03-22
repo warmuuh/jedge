@@ -65,6 +65,7 @@ public class Connection implements Closeable {
     messageEnvelope.write(envOut);
     byte[] toSend = Arrays.copyOfRange(buffer.array(), 0, messageEnvelope.message_length + 1);
     out.write(toSend);
+    out.flush();
   }
 
   public List<MessageEnvelope> readMessages() throws IOException {
