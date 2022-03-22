@@ -4,6 +4,7 @@ package com.github.warmuuh.jedge;
 import static com.ongres.scram.common.stringprep.StringPreparations.NO_PREPARATION;
 
 import com.github.warmuuh.jedge.db.flow.AuthFlow;
+import com.github.warmuuh.jedge.db.flow.ScriptFlow;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponse;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponseImpl;
 import com.github.warmuuh.jedge.db.protocol.ClientHandshakeImpl;
@@ -24,6 +25,7 @@ public class ConnectionTest {
 
     try (Connection connection = Connection.connect(new InetSocketAddress("localhost", 10701))) {
       new AuthFlow("edgedb", "edgedb", "password").run(connection);
+      new ScriptFlow("select Movie;").run(connection);
     } catch (Exception e) {
       e.printStackTrace();
     }

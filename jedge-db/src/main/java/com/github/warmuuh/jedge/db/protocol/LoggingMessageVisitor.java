@@ -1,31 +1,31 @@
 package com.github.warmuuh.jedge.db.protocol;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LoggingMessageVisitor extends ServerMessageVisitor {
 
   @Override
   void visit(ServerHandshakeImpl message) {
-      System.out.println("response:");
-      System.out.println(message.major_ver);
+      log.info("response: {}", message.major_ver);
   }
 
   @Override
   void visit(ErrorResponseImpl message) {
-    System.out.println("error: " + message.getMessage());
-    System.out.println(Integer.toHexString(message.error_code));
-
+    log.error("error: {} (code: {})", message.getMessage(), Integer.toHexString(message.error_code));
   }
 
   @Override
-  void visit(AuthenticationImpl errorResponse) {
-    System.out.println("Auth response: " + errorResponse.auth_status);
-    errorResponse.getPayload().ifPresent(payload -> {
-      System.out.println("payload: " + payload.getMethods());
+  void visit(AuthenticationImpl authMsg) {
+    log.info("Auth response: {}, (code: {})", authMsg.getStatus(), authMsg.auth_status);
+    authMsg.getPayload().ifPresent(payload -> {
+      log.info("Auth response payload: " + payload.getMethods());
     });
   }
 
   @Override
   void visitUnknown(ProtocolMessage message) {
-    System.out.println("Unknown message type: " + message.getClass());
-    System.out.println(message);
+    log.info("Unknown message type: " + message.getClass());
+    log.info(message.toString());
   }
 }

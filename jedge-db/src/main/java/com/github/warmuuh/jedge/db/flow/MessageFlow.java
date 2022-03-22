@@ -50,7 +50,7 @@ public class MessageFlow {
     outer: while(currentStep < steps.size()){
       for (MessageEnvelope svrMsg : connection.readMessages()) {
         ProtocolMessage srvResponse = serde.deserialize(svrMsg);
-        log.info("Received {}", srvResponse.getClass());
+        log.info("<< {}", srvResponse.getClass());
         new LoggingMessageVisitor().visit(srvResponse);
         FlowStep step = steps.get(currentStep);
         if (!step.getServerMessage().isInstance(srvResponse)){
@@ -58,10 +58,11 @@ public class MessageFlow {
         }
         Optional<ProtocolMessage> response = (Optional<ProtocolMessage>)step.getStep().apply(srvResponse);
         if (response.isEmpty()){
-          log.info("End of flow");
-          break outer;
+          log.info("|| End of flow");
+          continue;
+//          break outer;
         }
-        log.info("Sending{}", response.get().getClass());
+        log.info(">> {}", response.get().getClass());
         MessageEnvelope msg = serde.serialize(response.get());
         connection.writeMessage(msg);
 //        continue outer;

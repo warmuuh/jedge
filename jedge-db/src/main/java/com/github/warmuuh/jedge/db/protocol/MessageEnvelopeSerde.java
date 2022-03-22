@@ -16,7 +16,9 @@ public class MessageEnvelopeSerde {
       'E', ErrorResponseImpl.class,
       'R', AuthenticationImpl.class,
       'p', AuthenticationSASLInitialResponseImpl.class,
-      'r', AuthenticationSASLResponseImpl.class
+      'r', AuthenticationSASLResponseImpl.class,
+      'Q', ExecuteScriptImpl.class,
+      'C', CommandCompleteImpl.class
   );
 
 

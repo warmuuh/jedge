@@ -26,8 +26,10 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
+@Slf4j
 public class Connection implements Closeable {
 
   private final  SSLSocket socket;
@@ -95,6 +97,7 @@ public class Connection implements Closeable {
     }
 
 
+    log.info("Read messages: {}", messages);
     return messages;
   }
 
