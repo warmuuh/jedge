@@ -1,0 +1,12 @@
+
+// A set of message headers.
+ushort          num_attributes;
+header          [num_attributes] {
+  // Header code (specific to the type of the Message).
+  ushort          code;
+
+  // Header data.
+  string           value;
+}
+
+ubyte transaction_state;

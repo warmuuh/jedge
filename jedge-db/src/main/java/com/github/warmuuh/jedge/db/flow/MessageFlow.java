@@ -36,17 +36,21 @@ public class MessageFlow {
   private final List<FlowStep> steps;
   private final MessageEnvelopeSerde serde = new MessageEnvelopeSerde();
 
-  public void run(Connection connection) throws Exception {
+  public void run(Connection connection, boolean flush) throws Exception {
     sendInitialMessage(connection);
     log.info("polling");
-    pollMessagesAndSendNextSteps(connection);
+    pollMessagesAndSendNextSteps(connection, flush);
 
 
   }
 
-  private void pollMessagesAndSendNextSteps(Connection connection) throws Exception {
+  private void pollMessagesAndSendNextSteps(Connection connection, boolean flush) throws Exception {
     int currentStep = 0;
     outer: while(currentStep < steps.size()){
+      if (flush) {
+        log.info("trigger flush");
+        connection.triggerServerFlush();
+      }
       for (MessageEnvelope svrMsg : connection.readMessages()) {
         ProtocolMessage srvResponse = serde.deserialize(svrMsg);
         log.info("<< {}", srvResponse.getClass());

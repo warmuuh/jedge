@@ -29,22 +29,9 @@ public class ConnectionTest {
 
 
     try (Connection connection = Connection.connect(new InetSocketAddress("localhost", 10701))) {
-      new AuthFlow("edgedb", "edgedb", "password").run(connection);
-      new GranularFlow("select Movie;").run(connection);
-
-//      System.out.println("send message");
-//      sendMessage(PrepareImpl.of("select Movie;", ""), connection);
-//      System.out.println("poll");
-//      readAllMessages(connection);
-//
-//      sendMessage(ExecuteImpl.of("",""), connection);
-//      System.out.println("poll after execute 1");
-//      readAllMessages(connection);
-//      System.out.println("poll after execute 2");
-//      readAllMessages(connection);
-//      System.out.println("poll after execute 3");
-//      readAllMessages(connection);
-
+      new AuthFlow("edgedb", "edgedb", "password").run(connection, false);
+//      new ScriptFlow("select Movie;").run(connection);
+      new GranularFlow("select Movie { title, year };").run(connection, true);
     } catch (Exception e) {
       e.printStackTrace();
     }

@@ -29,6 +29,10 @@ public class MessageEnvelopeSerde {
     responseRegistry.put('C', CommandCompleteImpl.class);
     responseRegistry.put('1', PrepareCompleteImpl.class);
     responseRegistry.put('D', DataImpl.class);
+    responseRegistry.put('Z', ReadyForCommandImpl.class);
+    responseRegistry.put('K', ServerKeyData.class);
+    responseRegistry.put('S', ParameterStatusImpl.class);
+
   }
 
 

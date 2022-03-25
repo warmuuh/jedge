@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.net.ssl.SSLContext;
@@ -37,6 +38,13 @@ public class Connection implements Closeable {
   private final InputStream in;
   private final OutputStream out;
 
+  private static final MessageEnvelope FLUSH_MESSAGE;
+  static {
+    FLUSH_MESSAGE = new MessageEnvelope();
+    FLUSH_MESSAGE.mtype = 'H';
+    FLUSH_MESSAGE.message_length = 4;
+    FLUSH_MESSAGE.message = new byte[0];
+  }
 
   public static Connection connect(InetSocketAddress address) throws IOException, GeneralSecurityException {
     SSLContext sslContext = trustAllSSLContext();
@@ -57,6 +65,12 @@ public class Connection implements Closeable {
   }
 
 
+  public void triggerServerFlush() throws IOException {
+    buffer.flip();
+    buffer.clear();
+    buffer.flip();
+    writeMessage(FLUSH_MESSAGE);
+  }
 
   public void writeMessage(MessageEnvelope messageEnvelope) throws IOException {
     buffer.clear();
@@ -74,7 +88,13 @@ public class Connection implements Closeable {
     buffer.clear();
     BufferedInputStream inputStream = new BufferedInputStream(in);
     JBBPBitInputStream reader = new JBBPBitInputStream(inputStream);
-    while (reader.hasAvailableData()) {
+    //block until first bit
+    if (!reader.hasAvailableData()) {
+      return Collections.emptyList();
+    }
+
+    //dont block here
+    while (reader.available() > 0) {
       int b = reader.readByte();
       if (b == -1) {
         break;
@@ -83,7 +103,6 @@ public class Connection implements Closeable {
       int messageLength = reader.readInt(JBBPByteOrder.BIG_ENDIAN);
       buffer.putInt(messageLength);
       buffer.put(reader.readByteArray(messageLength-4));
-      break;
     }
 
     buffer.flip();

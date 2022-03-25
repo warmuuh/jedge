@@ -2,12 +2,6 @@
 // currently always of size 1.
 ushort          num_data;
 data          [num_data] {
-  int num_data2;
-  ubyte[num_data2]          data;
+  int data_length;
+  ubyte[data_length] data;
 }
-
-// Prepared statement name.
-string statement_name;
-
-// Encoded argument data.
-string arguments;
