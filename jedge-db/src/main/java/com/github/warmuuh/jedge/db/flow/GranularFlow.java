@@ -8,6 +8,8 @@ import com.github.warmuuh.jedge.db.protocol.ExecuteScriptImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareComplete;
 import com.github.warmuuh.jedge.db.protocol.PrepareCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
+import com.github.warmuuh.jedge.db.protocol.SyncMessage;
+import java.util.List;
 import java.util.Optional;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
@@ -22,18 +24,18 @@ public class GranularFlow {
   public GranularFlow(String script) {
     String commandId = ""; //has to be empty, not yet supported by edgedb otherwise
     flow = new MessageFlow(
-        () -> PrepareImpl.of(script, commandId),
+        () -> List.of(PrepareImpl.of(script, commandId), SyncMessage.INSTANCE),
         FlowStep.step(PrepareCompleteImpl.class, resp -> {
           log.info("Received prepare complete. cardinality {}", resp.getCardinality());
-          return Optional.of(ExecuteImpl.of(commandId, ""));
+          return List.of(ExecuteImpl.of(commandId, ""), SyncMessage.INSTANCE);
         }),
         FlowStep.step(DataImpl.class, resp -> {
-          log.info("Received Data: {}", new String(resp.data[0].data));
-          return Optional.empty();
+          log.info("Received Data: {}", resp.getDataAsString());
+          return List.of();
         }),
         FlowStep.step(CommandCompleteImpl.class, resp -> {
           log.info("Command complete");
-          return Optional.empty();
+          return List.of();
         }));
   }
 

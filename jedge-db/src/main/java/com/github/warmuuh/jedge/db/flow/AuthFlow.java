@@ -10,12 +10,15 @@ import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponseImp
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponse;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponseImpl;
 import com.github.warmuuh.jedge.db.protocol.ClientHandshakeImpl;
+import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.ongres.scram.client.ScramClient;
 import com.ongres.scram.client.ScramClient.ChannelBinding;
 import com.ongres.scram.client.ScramSession;
 import com.ongres.scram.client.ScramSession.ClientFinalProcessor;
 import com.ongres.scram.client.ScramSession.ServerFirstProcessor;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
 
@@ -32,30 +35,31 @@ public class AuthFlow {
 
   public AuthFlow(String database, String username, String password) {
     flow = new MessageFlow(
-        () -> ClientHandshakeImpl.of(username, database),
+        () -> List.of(ClientHandshakeImpl.of(username, database)),
         FlowStep.step(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_REQUIRED) {
             throw new IllegalStateException("expected SASL_REQUIRED");
           }
-          return Optional.of(saslFirstMessage(username));
+          return List.of(saslFirstMessage(username));
         }),
         FlowStep.step(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_CONTINUE) {
             throw new IllegalStateException("expected SASL_CONTINUE");
           }
-          return resp.getContinuePayload().map(payload -> saslFinalMessage(payload.getData(), password));
+          return resp.getContinuePayload().map(payload -> saslFinalMessage(payload.getData(), password))
+              .stream().collect(Collectors.toList());
         }),
         FlowStep.step(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_FINAL) {
             throw new IllegalStateException("expected SASL_FINAL");
           }
-          return Optional.empty();
+          return List.<ProtocolMessage>of();
         }),
         FlowStep.step(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.OK) {
             throw new IllegalStateException("expected OK");
           }
-          return Optional.empty();
+          return List.<ProtocolMessage>of();
         }));
   }
 

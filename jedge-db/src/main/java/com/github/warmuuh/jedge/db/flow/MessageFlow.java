@@ -6,11 +6,13 @@ import com.github.warmuuh.jedge.db.protocol.LoggingMessageVisitor;
 import com.github.warmuuh.jedge.db.protocol.MessageEnvelope;
 import com.github.warmuuh.jedge.db.protocol.MessageEnvelopeSerde;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageFlow {
 
   public MessageFlow(
-      Supplier<? extends ProtocolMessage> initialStep,
+      Supplier<List<? extends ProtocolMessage>> initialStep,
       FlowStep... steps) {
     this.initialStep = initialStep;
     this.steps = Arrays.asList(steps);
@@ -29,28 +31,24 @@ public class MessageFlow {
   @RequiredArgsConstructor(staticName = "step")
   public static class FlowStep<T extends ProtocolMessage, R extends ProtocolMessage> {
     Class<T> serverMessage;
-    Function<T, Optional<R>> step;
+    Function<T, List<? extends ProtocolMessage>> step;
   }
 
-  private final Supplier<? extends ProtocolMessage> initialStep;
+  private final Supplier<List<? extends ProtocolMessage>> initialStep;
   private final List<FlowStep> steps;
   private final MessageEnvelopeSerde serde = new MessageEnvelopeSerde();
 
-  public void run(Connection connection, boolean flush) throws Exception {
+  public void run(Connection connection) throws Exception {
     sendInitialMessage(connection);
     log.info("polling");
-    pollMessagesAndSendNextSteps(connection, flush);
+    pollMessagesAndSendNextSteps(connection);
 
 
   }
 
-  private void pollMessagesAndSendNextSteps(Connection connection, boolean flush) throws Exception {
+  private void pollMessagesAndSendNextSteps(Connection connection) throws Exception {
     int currentStep = 0;
     outer: while(currentStep < steps.size()){
-      if (flush) {
-        log.info("trigger flush");
-        connection.triggerServerFlush();
-      }
       for (MessageEnvelope svrMsg : connection.readMessages()) {
         ProtocolMessage srvResponse = serde.deserialize(svrMsg);
         log.info("<< {}", srvResponse.getClass());
@@ -59,15 +57,13 @@ public class MessageFlow {
         if (!step.getServerMessage().isInstance(srvResponse)){
           continue;
         }
-        Optional<ProtocolMessage> response = (Optional<ProtocolMessage>)step.getStep().apply(srvResponse);
+        List<ProtocolMessage> response = (List<ProtocolMessage>)step.getStep().apply(srvResponse);
         if (response.isEmpty()){
           //nothing to do, lets continue in the flow
           continue;
 //          break outer;
         }
-        log.info(">> {}", response.get().getClass());
-        MessageEnvelope msg = serde.serialize(response.get());
-        connection.writeMessage(msg);
+        sendMessages(connection, response);
 //        continue outer;
       }
       currentStep++;
@@ -75,9 +71,16 @@ public class MessageFlow {
   }
 
   private void sendInitialMessage(Connection connection) throws Exception {
-    ProtocolMessage firstMessage = initialStep.get();
-    log.info("Sending initial: " + firstMessage);
-    MessageEnvelope envelope = serde.serialize(firstMessage);
-    connection.writeMessage(envelope);
+    List<? extends ProtocolMessage> messages = initialStep.get();
+    sendMessages(connection, messages);
+  }
+
+  private void sendMessages(Connection connection, List<? extends ProtocolMessage> messages) throws Exception {
+    log.info(">> {}", messages);
+    ArrayList<MessageEnvelope> envelopes = new ArrayList<>(messages.size());
+    for (ProtocolMessage message : messages) {
+      envelopes.add(serde.serialize(message));
+    }
+    connection.writeMessage(envelopes.toArray(new MessageEnvelope[0]));
   }
 }

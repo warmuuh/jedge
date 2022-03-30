@@ -21,6 +21,8 @@ public class MessageEnvelopeSerde {
     requestRegistry.put(ExecuteScriptImpl.class, 'Q');
     requestRegistry.put(PrepareImpl.class, 'P');
     requestRegistry.put(ExecuteImpl.class, 'E');
+    requestRegistry.put(SyncMessage.class, 'S');
+
 
     responseRegistry = new HashMap<>();
     responseRegistry.put('v', ServerHandshakeImpl.class);

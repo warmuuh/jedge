@@ -46,6 +46,14 @@ public class Connection implements Closeable {
     FLUSH_MESSAGE.message = new byte[0];
   }
 
+  private static final MessageEnvelope SYNC_MESSAGE;
+  static {
+    SYNC_MESSAGE = new MessageEnvelope();
+    SYNC_MESSAGE.mtype = 'S';
+    SYNC_MESSAGE.message_length = 4;
+    SYNC_MESSAGE.message = new byte[0];
+  }
+
   public static Connection connect(InetSocketAddress address) throws IOException, GeneralSecurityException {
     SSLContext sslContext = trustAllSSLContext();
     SSLSocketFactory factory = sslContext.getSocketFactory();
@@ -72,12 +80,17 @@ public class Connection implements Closeable {
     writeMessage(FLUSH_MESSAGE);
   }
 
-  public void writeMessage(MessageEnvelope messageEnvelope) throws IOException {
+  public void writeMessage(MessageEnvelope... messageEnvelopes) throws IOException {
     buffer.clear();
     ByteBufferOutputStream out1 = new ByteBufferOutputStream(buffer, true);
     JBBPBitOutputStream envOut = new JBBPBitOutputStream(out1);
-    messageEnvelope.write(envOut);
-    byte[] toSend = Arrays.copyOfRange(buffer.array(), 0, messageEnvelope.message_length + 1);
+    int lengthCounter = 0;
+    for (MessageEnvelope envelope : messageEnvelopes) {
+      envelope.write(envOut);
+      lengthCounter += envelope.message_length + 1;
+    }
+
+    byte[] toSend = Arrays.copyOfRange(buffer.array(), 0, lengthCounter);
     out.write(toSend);
     out.flush();
   }

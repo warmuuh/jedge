@@ -7,8 +7,10 @@ import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponse;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponseImpl;
 import com.github.warmuuh.jedge.db.protocol.CommandCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.ExecuteScriptImpl;
+import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.ongres.scram.client.ScramSession.ClientFinalProcessor;
 import com.ongres.scram.client.ScramSession.ServerFirstProcessor;
+import java.util.List;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import lombok.experimental.Delegate;
@@ -23,10 +25,10 @@ public class ScriptFlow {
 
   public ScriptFlow(String script) {
     flow = new MessageFlow(
-        () -> ExecuteScriptImpl.of(script),
+        () -> List.of(ExecuteScriptImpl.of(script)),
         FlowStep.step(CommandCompleteImpl.class, resp -> {
           log.info("Received result: {}", resp.getStatus());
-          return Optional.empty();
+          return List.<ProtocolMessage>of();
         }));
   }
 

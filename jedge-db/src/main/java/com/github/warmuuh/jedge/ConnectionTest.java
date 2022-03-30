@@ -29,9 +29,9 @@ public class ConnectionTest {
 
 
     try (Connection connection = Connection.connect(new InetSocketAddress("localhost", 10701))) {
-      new AuthFlow("edgedb", "edgedb", "password").run(connection, false);
+      new AuthFlow("edgedb", "edgedb", "password").run(connection);
 //      new ScriptFlow("select Movie;").run(connection);
-      new GranularFlow("select Movie { title, year };").run(connection, true);
+      new GranularFlow("select Movie { title, year };").run(connection);
     } catch (Exception e) {
       e.printStackTrace();
     }
