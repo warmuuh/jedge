@@ -36,26 +36,26 @@ public class AuthFlow {
   public AuthFlow(String database, String username, String password) {
     flow = new MessageFlow(
         () -> List.of(ClientHandshakeImpl.of(username, database)),
-        FlowStep.step(AuthenticationImpl.class, resp -> {
+        FlowStep.one(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_REQUIRED) {
             throw new IllegalStateException("expected SASL_REQUIRED");
           }
           return List.of(saslFirstMessage(username));
         }),
-        FlowStep.step(AuthenticationImpl.class, resp -> {
+        FlowStep.one(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_CONTINUE) {
             throw new IllegalStateException("expected SASL_CONTINUE");
           }
           return resp.getContinuePayload().map(payload -> saslFinalMessage(payload.getData(), password))
               .stream().collect(Collectors.toList());
         }),
-        FlowStep.step(AuthenticationImpl.class, resp -> {
+        FlowStep.one(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_FINAL) {
             throw new IllegalStateException("expected SASL_FINAL");
           }
           return List.<ProtocolMessage>of();
         }),
-        FlowStep.step(AuthenticationImpl.class, resp -> {
+        FlowStep.one(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.OK) {
             throw new IllegalStateException("expected OK");
           }

@@ -26,7 +26,7 @@ public class ScriptFlow {
   public ScriptFlow(String script) {
     flow = new MessageFlow(
         () -> List.of(ExecuteScriptImpl.of(script)),
-        FlowStep.step(CommandCompleteImpl.class, resp -> {
+        FlowStep.one(CommandCompleteImpl.class, resp -> {
           log.info("Received result: {}", resp.getStatus());
           return List.<ProtocolMessage>of();
         }));
