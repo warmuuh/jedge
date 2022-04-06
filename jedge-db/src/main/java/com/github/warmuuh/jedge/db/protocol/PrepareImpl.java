@@ -28,10 +28,10 @@ public class PrepareImpl extends Prepare {
     int id;
   }
 
-  public static PrepareImpl of(String script, String commandName) {
+  public static PrepareImpl of(String script, IOFormat ioFormat, Cardinality expectedCardinality, String commandName) {
     PrepareImpl command = new PrepareImpl();
-    command.io_format = (char)IOFormat.JSON.id;
-    command.expected_cardinality = (char)Cardinality.MANY.id;
+    command.io_format = (char)ioFormat.id;
+    command.expected_cardinality = (char)expectedCardinality.id;
     command.command = new JBBPFieldString(null, script);
     command.statement_name = new JBBPFieldString(null, commandName);
     return command;

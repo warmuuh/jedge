@@ -10,18 +10,25 @@ import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponseImp
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponse;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponseImpl;
 import com.github.warmuuh.jedge.db.protocol.ClientHandshakeImpl;
+import com.github.warmuuh.jedge.db.protocol.ParameterStatusImpl;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
+import com.github.warmuuh.jedge.db.protocol.ReadyForCommandImpl;
+import com.github.warmuuh.jedge.db.protocol.ServerKeyData;
 import com.ongres.scram.client.ScramClient;
 import com.ongres.scram.client.ScramClient.ChannelBinding;
 import com.ongres.scram.client.ScramSession;
 import com.ongres.scram.client.ScramSession.ClientFinalProcessor;
 import com.ongres.scram.client.ScramSession.ServerFirstProcessor;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
+import lombok.Value;
 import lombok.experimental.Delegate;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AuthFlow {
 
   @Delegate
@@ -32,6 +39,9 @@ public class AuthFlow {
       .selectMechanismBasedOnServerAdvertised("SCRAM-SHA-256")
       .setup();
   private ScramSession scramSession;
+
+  private Map<String, String> parameters = new HashMap<>();
+  private boolean connected = false;
 
   public AuthFlow(String database, String username, String password) {
     flow = new MessageFlow(
@@ -60,9 +70,24 @@ public class AuthFlow {
             throw new IllegalStateException("expected OK");
           }
           return List.<ProtocolMessage>of();
+        }),
+        FlowStep.one(ServerKeyData.class, resp -> {
+          System.out.println("skd: " + new String(resp.data));
+          return List.<ProtocolMessage>of();
+        }),
+        FlowStep.zeroOrMore(ParameterStatusImpl.class, param -> {
+          parameters.put(param.getName(), param.getValue());
+          return List.<ProtocolMessage>of();
+        }),
+        FlowStep.one(ReadyForCommandImpl.class, ready -> {
+          connected = true;
+          return List.<ProtocolMessage>of();
         }));
   }
 
+  public AuthFlowResult getResult() {
+    return new AuthFlowResult(parameters, connected);
+  }
 
   private AuthenticationSASLInitialResponse saslFirstMessage(String username) {
     scramSession = scramClient.scramSession(username);
@@ -74,5 +99,11 @@ public class AuthFlow {
     ServerFirstProcessor serverFirst = scramSession.receiveServerFirstMessage(serverResponse);
     ClientFinalProcessor finalProcessor = serverFirst.clientFinalProcessor(password);
     return AuthenticationSASLResponseImpl.of(finalProcessor.clientFinalMessage());
+  }
+
+  @Value
+  public static class AuthFlowResult {
+    Map<String, String> parameters;
+    boolean connected;
   }
 }
