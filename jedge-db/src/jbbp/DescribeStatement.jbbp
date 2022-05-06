@@ -1,0 +1,14 @@
+
+// A set of message headers.
+ushort          num_headers;
+header          [num_headers] {
+  // Header code (specific to the type of the Message).
+  ushort          code;
+
+  // Header data.
+  string           value;
+}
+
+ubyte aspect;
+
+string statement_name;

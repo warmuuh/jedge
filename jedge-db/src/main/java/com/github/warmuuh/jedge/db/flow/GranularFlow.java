@@ -2,7 +2,9 @@ package com.github.warmuuh.jedge.db.flow;
 
 import com.github.warmuuh.jedge.db.flow.GranularFlow.GranularFlowResult;
 import com.github.warmuuh.jedge.db.protocol.CommandCompleteImpl;
+import com.github.warmuuh.jedge.db.protocol.CommandDataDescriptionImpl;
 import com.github.warmuuh.jedge.db.protocol.DataImpl;
+import com.github.warmuuh.jedge.db.protocol.DescribeStatementImpl;
 import com.github.warmuuh.jedge.db.protocol.ExecuteImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
@@ -12,6 +14,7 @@ import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.github.warmuuh.jedge.db.protocol.SyncMessage;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +36,13 @@ public class GranularFlow implements Flow<GranularFlowResult> {
     steps = List.of(
         FlowStep.one(PrepareCompleteImpl.class, resp -> {
           log.info("Received prepare complete. cardinality {}", resp.getCardinality());
+          return List.of(DescribeStatementImpl.of(commandName), SyncMessage.INSTANCE);
+        }),
+        FlowStep.one(CommandDataDescriptionImpl.class, resp -> {
+          log.info("Received command data description. output type id: " + UUID.nameUUIDFromBytes(resp.output_typedesc));
           return List.of(ExecuteImpl.of(commandName, ""), SyncMessage.INSTANCE);
         }),
+
         FlowStep.oneOrMore(DataImpl.class, resp -> {
           log.info("Received Data: {}", resp.getDataAsString());
           dataChunks.add(resp.getData());

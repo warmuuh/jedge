@@ -1,0 +1,23 @@
+
+// A set of message headers.
+ushort          num_headers;
+header          [num_headers] {
+  // Header code (specific to the type of the Message).
+  ushort          code;
+
+  // Header data.
+  string           value;
+}
+
+ubyte result_cardinality;
+
+// Argument data descriptor ID.
+byte[16] input_typedesc_id;
+int input_typedesc_len;
+byte[input_typedesc_len] input_typedesc;
+
+// Output data descriptor ID.
+byte[16] output_typedesc_id;
+int output_typedesc_len;
+byte[output_typedesc_len] output_typedesc;
+

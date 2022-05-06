@@ -24,6 +24,7 @@ public class MessageEnvelopeSerde {
     requestRegistry.put(PrepareImpl.class, 'P');
     requestRegistry.put(ExecuteImpl.class, 'E');
     requestRegistry.put(SyncMessage.class, 'S');
+    requestRegistry.put(DescribeStatementImpl.class, 'D');
 
 
     responseRegistry = new HashMap<>();
@@ -36,6 +37,7 @@ public class MessageEnvelopeSerde {
     responseRegistry.put('Z', ReadyForCommandImpl.class);
     responseRegistry.put('K', ServerKeyData.class);
     responseRegistry.put('S', ParameterStatusImpl.class);
+    responseRegistry.put('T', CommandDataDescriptionImpl.class);
 
   }
 
