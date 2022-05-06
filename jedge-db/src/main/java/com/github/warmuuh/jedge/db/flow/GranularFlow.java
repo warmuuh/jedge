@@ -1,5 +1,6 @@
 package com.github.warmuuh.jedge.db.flow;
 
+import com.github.warmuuh.jedge.WireFormat;
 import com.github.warmuuh.jedge.db.flow.GranularFlow.GranularFlowResult;
 import com.github.warmuuh.jedge.db.protocol.CommandCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.CommandDataDescriptionImpl;
@@ -9,12 +10,10 @@ import com.github.warmuuh.jedge.db.protocol.ExecuteImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl.Cardinality;
-import com.github.warmuuh.jedge.db.protocol.PrepareImpl.IOFormat;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.github.warmuuh.jedge.db.protocol.SyncMessage;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -30,16 +29,20 @@ public class GranularFlow implements Flow<GranularFlowResult> {
   List<byte[]> dataChunks = new LinkedList<>();
   boolean finished = false;
 
-  public GranularFlow(String script, IOFormat ioFormat, Cardinality cardinality) {
+  public GranularFlow(String script, WireFormat wireFormat, Cardinality cardinality) {
     String commandName = ""; //has to be empty, not yet supported by edgedb otherwise
-    initialStep = List.of(PrepareImpl.of(script, ioFormat, cardinality, commandName), SyncMessage.INSTANCE);
+    initialStep = List.of(PrepareImpl.of(script, wireFormat.getIoFormat(), cardinality, commandName), SyncMessage.INSTANCE);
     steps = List.of(
         FlowStep.one(PrepareCompleteImpl.class, resp -> {
           log.info("Received prepare complete. cardinality {}", resp.getCardinality());
-          return List.of(DescribeStatementImpl.of(commandName), SyncMessage.INSTANCE);
+          if (!wireFormat.isTypeKnown(resp.getInputTypeId())
+              || !wireFormat.isTypeKnown(resp.getOutputTypeId())) {
+            return List.of(DescribeStatementImpl.of(commandName), SyncMessage.INSTANCE);
+          }
+          return List.of(ExecuteImpl.of(commandName, ""), SyncMessage.INSTANCE);
         }),
-        FlowStep.one(CommandDataDescriptionImpl.class, resp -> {
-          log.info("Received command data description. output type id: " + UUID.nameUUIDFromBytes(resp.output_typedesc));
+        FlowStep.optional(CommandDataDescriptionImpl.class, resp -> {
+          log.info("Received command data description. output type id: " + resp.getOutputTypeId());
           return List.of(ExecuteImpl.of(commandName, ""), SyncMessage.INSTANCE);
         }),
 

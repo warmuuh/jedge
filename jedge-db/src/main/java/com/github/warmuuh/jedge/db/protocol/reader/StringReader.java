@@ -1,4 +1,4 @@
-package com.github.warmuuh.jedge.db.protocol;
+package com.github.warmuuh.jedge.db.protocol.reader;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
@@ -8,7 +8,7 @@ import com.igormaznitsa.jbbp.model.JBBPAbstractField;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import java.io.IOException;
 
-public class StringReader {
+public class StringReader  implements CustomTypeReaderWriter {
 
   public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream,
       JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue,

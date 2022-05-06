@@ -1,5 +1,6 @@
 package com.github.warmuuh.jedge.db.protocol;
 
+import com.github.warmuuh.jedge.db.protocol.reader.StringReader;
 import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import lombok.experimental.Delegate;
 

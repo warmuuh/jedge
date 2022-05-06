@@ -1,4 +1,4 @@
-package com.github.warmuuh.jedge.db.protocol;
+package com.github.warmuuh.jedge.db.protocol.reader;
 
 import com.igormaznitsa.jbbp.compiler.JBBPNamedFieldInfo;
 import com.igormaznitsa.jbbp.compiler.tokenizer.JBBPFieldTypeParameterContainer;
@@ -11,12 +11,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import lombok.val;
 
-public class StringArrayReader {
+public class StringArrayReader implements CustomTypeReaderWriter {
 
   StringReader stringReader = new StringReader();
 
+  @Override
   public JBBPAbstractField readCustomFieldType(Object sourceStruct, JBBPBitInputStream inStream,
       JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue,
       boolean readWholeStream, int arraySize) throws IOException {
@@ -34,6 +34,7 @@ public class StringArrayReader {
     return new JBBPFieldArrayString(nullableNamedFieldInfo, arrayContent.toArray(new String[]{}));
   }
 
+  @Override
   public void writeCustomFieldType(Object sourceStruct, JBBPBitOutputStream outStream, JBBPAbstractField fieldValue,
       JBBPFieldTypeParameterContainer typeParameterContainer, JBBPNamedFieldInfo nullableNamedFieldInfo, int extraValue,
       boolean wholeArray, int arraySize) throws IOException {

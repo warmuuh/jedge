@@ -1,7 +1,7 @@
 package com.github.warmuuh.jedge.db.protocol;
 
+import com.github.warmuuh.jedge.db.protocol.reader.StringReader;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 
 public class ReadyForCommandImpl extends ReadyForCommand {

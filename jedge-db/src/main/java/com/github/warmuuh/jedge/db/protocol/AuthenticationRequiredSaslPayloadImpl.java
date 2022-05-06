@@ -1,5 +1,6 @@
 package com.github.warmuuh.jedge.db.protocol;
 
+import com.github.warmuuh.jedge.db.protocol.reader.StringArrayReader;
 import com.igormaznitsa.jbbp.model.JBBPFieldArrayString;
 import java.util.Arrays;
 import java.util.List;

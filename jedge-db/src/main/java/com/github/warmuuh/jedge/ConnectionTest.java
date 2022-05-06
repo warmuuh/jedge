@@ -39,7 +39,7 @@ public class ConnectionTest {
       AuthFlowResult result = executor.run(authFlow, connection);
       System.out.println("Authflow result: " + result);
 
-      GranularFlow granularFlow = new GranularFlow("select Movie { title, year };", IOFormat.JSON, Cardinality.MANY);
+      GranularFlow granularFlow = new GranularFlow("select Movie { title, year };", WireFormat.JsonFormat, Cardinality.MANY);
       GranularFlowResult granularFlowResult = executor.run(granularFlow, connection);
       granularFlowResult.getDataChunks().forEach(chunk -> System.out.println(new String(chunk)));
 

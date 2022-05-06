@@ -12,7 +12,7 @@ header          [num_attributes] {
 ubyte cardinality;
 
 // Argument data descriptor ID.
-byte[16] input_typedesc_id;
+uuid input_typedesc_id;
 
 // Result data descriptor ID.
-byte[16] output_typedesc_id;
+uuid output_typedesc_id;

@@ -33,7 +33,7 @@ public class Jedge<T> implements Closeable {
 
 
   public Optional<T> querySingle(String query) {
-    GranularFlow flow = new GranularFlow(query, wireFormat.getFormat(), Cardinality.AT_MOST_ONE);
+    GranularFlow flow = new GranularFlow(query, wireFormat, Cardinality.AT_MOST_ONE);
     GranularFlowResult result = flow.getResult();
     return result.getDataChunks().stream()
         .findAny()
@@ -41,7 +41,7 @@ public class Jedge<T> implements Closeable {
   }
 
   public List<T> queryList(String query) throws DatabaseProtocolException, IOException {
-    GranularFlow flow = new GranularFlow(query, wireFormat.getFormat(), Cardinality.MANY);
+    GranularFlow flow = new GranularFlow(query, wireFormat, Cardinality.MANY);
     GranularFlowResult result = flowExecutor.run(flow, connection);
     return result.getDataChunks().stream()
         .map(wireFormat::convertResult)

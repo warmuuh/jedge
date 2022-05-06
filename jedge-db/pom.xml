@@ -41,6 +41,7 @@
               <packageName>com.github.warmuuh.jedge.db.protocol</packageName>
               <customTypes>
                 <customType>string</customType>
+                <customType>uuid</customType>
               </customTypes>
               <interfaces>com.github.warmuuh.jedge.db.protocol.ProtocolMessage</interfaces>
             </configuration>

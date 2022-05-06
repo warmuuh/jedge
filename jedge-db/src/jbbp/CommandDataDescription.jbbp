@@ -12,12 +12,12 @@ header          [num_headers] {
 ubyte result_cardinality;
 
 // Argument data descriptor ID.
-byte[16] input_typedesc_id;
+uuid input_typedesc_id;
 int input_typedesc_len;
 byte[input_typedesc_len] input_typedesc;
 
 // Output data descriptor ID.
-byte[16] output_typedesc_id;
+uuid output_typedesc_id;
 int output_typedesc_len;
 byte[output_typedesc_len] output_typedesc;
 
