@@ -5,6 +5,7 @@ import static com.ongres.scram.common.stringprep.StringPreparations.NO_PREPARATI
 
 import com.github.warmuuh.jedge.db.flow.AuthFlow;
 import com.github.warmuuh.jedge.db.flow.AuthFlow.AuthFlowResult;
+import com.github.warmuuh.jedge.db.flow.BlockingFlowExecutor;
 import com.github.warmuuh.jedge.db.flow.GranularFlow;
 import com.github.warmuuh.jedge.db.flow.GranularFlow.GranularFlowResult;
 import com.github.warmuuh.jedge.db.flow.ScriptFlow;
@@ -31,17 +32,15 @@ public class ConnectionTest {
 
   public static void main(String[] args) throws Exception {
 
+    BlockingFlowExecutor executor = new BlockingFlowExecutor();
 
     try (Connection connection = Connection.connect(new InetSocketAddress("localhost", 10701))) {
       AuthFlow authFlow = new AuthFlow("edgedb", "edgedb", "password");
-      authFlow.run(connection);
-      AuthFlowResult result = authFlow.getResult();
+      AuthFlowResult result = executor.run(authFlow, connection);
       System.out.println("Authflow result: " + result);
 
-
       GranularFlow granularFlow = new GranularFlow("select Movie { title, year };", IOFormat.JSON, Cardinality.MANY);
-      granularFlow.run(connection);
-      GranularFlowResult granularFlowResult = granularFlow.getResult();
+      GranularFlowResult granularFlowResult = executor.run(granularFlow, connection);
       granularFlowResult.getDataChunks().forEach(chunk -> System.out.println(new String(chunk)));
 
     } catch (Exception e) {

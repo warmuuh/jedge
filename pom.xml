@@ -5,11 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.warmuuh</groupId>
-  <artifactId>jedge</artifactId>
+  <artifactId>jedge-parent</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <modules>
     <module>jedge-db</module>
+    <module>jedge</module>
   </modules>
 
   <properties>
@@ -41,5 +42,15 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.github.warmuuh</groupId>
+        <artifactId>jedge-db</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>

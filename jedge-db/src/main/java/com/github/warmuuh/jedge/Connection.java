@@ -27,6 +27,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -54,7 +55,7 @@ public class Connection implements Closeable {
     SYNC_MESSAGE.message = new byte[0];
   }
 
-  public static Connection connect(InetSocketAddress address) throws IOException, GeneralSecurityException {
+  public static Connection connect(InetSocketAddress address) throws IOException {
     SSLContext sslContext = trustAllSSLContext();
     SSLSocketFactory factory = sslContext.getSocketFactory();
     SSLSocket socket = (SSLSocket) factory.createSocket(address.getHostName(), address.getPort());
@@ -139,7 +140,8 @@ public class Connection implements Closeable {
     socket.close();
   }
 
-  private static SSLContext trustAllSSLContext() throws IOException, GeneralSecurityException {
+  @SneakyThrows
+  private static SSLContext trustAllSSLContext() throws IOException {
     SSLContext sslContext = SSLContext.getInstance("TLS");
     // Create a trust manager that does not validate certificate chains
     TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {

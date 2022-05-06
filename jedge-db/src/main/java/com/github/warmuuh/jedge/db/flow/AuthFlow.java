@@ -2,7 +2,7 @@ package com.github.warmuuh.jedge.db.flow;
 
 import static com.ongres.scram.common.stringprep.StringPreparations.NO_PREPARATION;
 
-import com.github.warmuuh.jedge.db.flow.MessageFlow.FlowStep;
+import com.github.warmuuh.jedge.db.flow.AuthFlow.AuthFlowResult;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationImpl;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationImpl.AuthenticationStatus;
 import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponse;
@@ -23,16 +23,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.Value;
-import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AuthFlow {
+public class AuthFlow implements Flow<AuthFlowResult> {
 
-  @Delegate
-  private final MessageFlow flow;
+  @Getter
+  private final List<? extends ProtocolMessage> initialStep;
+  @Getter
+  private final List<FlowStep> steps;
+
   private final ScramClient scramClient = ScramClient
       .channelBinding(ChannelBinding.NO)
       .stringPreparation(NO_PREPARATION)
@@ -43,9 +46,10 @@ public class AuthFlow {
   private Map<String, String> parameters = new HashMap<>();
   private boolean connected = false;
 
+
   public AuthFlow(String database, String username, String password) {
-    flow = new MessageFlow(
-        () -> List.of(ClientHandshakeImpl.of(username, database)),
+    initialStep = List.of(ClientHandshakeImpl.of(username, database));
+    steps = List.of(
         FlowStep.one(AuthenticationImpl.class, resp -> {
           if (resp.getStatus() != AuthenticationStatus.SASL_REQUIRED) {
             throw new IllegalStateException("expected SASL_REQUIRED");
@@ -82,9 +86,11 @@ public class AuthFlow {
         FlowStep.one(ReadyForCommandImpl.class, ready -> {
           connected = true;
           return List.<ProtocolMessage>of();
-        }));
+        })
+    );
   }
 
+  @Override
   public AuthFlowResult getResult() {
     return new AuthFlowResult(parameters, connected);
   }

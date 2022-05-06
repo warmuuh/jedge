@@ -1,12 +1,9 @@
 package com.github.warmuuh.jedge.db.flow;
 
-import com.github.warmuuh.jedge.db.flow.MessageFlow.FlowStep;
+import com.github.warmuuh.jedge.db.flow.GranularFlow.GranularFlowResult;
 import com.github.warmuuh.jedge.db.protocol.CommandCompleteImpl;
-import com.github.warmuuh.jedge.db.protocol.Data;
 import com.github.warmuuh.jedge.db.protocol.DataImpl;
 import com.github.warmuuh.jedge.db.protocol.ExecuteImpl;
-import com.github.warmuuh.jedge.db.protocol.ExecuteScriptImpl;
-import com.github.warmuuh.jedge.db.protocol.PrepareComplete;
 import com.github.warmuuh.jedge.db.protocol.PrepareCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl.Cardinality;
@@ -15,24 +12,25 @@ import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.github.warmuuh.jedge.db.protocol.SyncMessage;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
+import lombok.Getter;
 import lombok.Value;
-import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class GranularFlow {
+public class GranularFlow implements Flow<GranularFlowResult> {
 
-  @Delegate
-  private final MessageFlow flow;
+  @Getter
+  private final List<? extends ProtocolMessage> initialStep;
+  @Getter
+  private final List<FlowStep> steps;
 
   List<byte[]> dataChunks = new LinkedList<>();
   boolean finished = false;
 
   public GranularFlow(String script, IOFormat ioFormat, Cardinality cardinality) {
     String commandName = ""; //has to be empty, not yet supported by edgedb otherwise
-    flow = new MessageFlow(
-        () -> List.of(PrepareImpl.of(script, ioFormat, cardinality, commandName), SyncMessage.INSTANCE),
+    initialStep = List.of(PrepareImpl.of(script, ioFormat, cardinality, commandName), SyncMessage.INSTANCE);
+    steps = List.of(
         FlowStep.one(PrepareCompleteImpl.class, resp -> {
           log.info("Received prepare complete. cardinality {}", resp.getCardinality());
           return List.of(ExecuteImpl.of(commandName, ""), SyncMessage.INSTANCE);
@@ -50,6 +48,7 @@ public class GranularFlow {
   }
 
 
+  @Override
   public GranularFlowResult getResult() {
     return new GranularFlowResult(dataChunks, finished);
   }

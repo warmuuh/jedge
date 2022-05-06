@@ -1,9 +1,11 @@
 package com.github.warmuuh.jedge.db.protocol;
 
+import com.github.warmuuh.jedge.DatabaseProtocolException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,21 +40,24 @@ public class MessageEnvelopeSerde {
   }
 
 
-  public ProtocolMessage deserialize(MessageEnvelope envelope) throws Exception {
+  public ProtocolMessage deserialize(MessageEnvelope envelope) throws IOException, DatabaseProtocolException {
     Class<? extends ProtocolMessage> msgType = responseRegistry.get(envelope.mtype);
     if (msgType == null) {
       System.out.println("Unknown message type: " + envelope.mtype);
       System.out.println(IOUtils.toString(new ByteArrayInputStream(envelope.message)));
       throw new IllegalArgumentException("Unknown message type: " + envelope.mtype);
     }
-    ProtocolMessage message = msgType.getDeclaredConstructor().newInstance();
-    message.read(new JBBPBitInputStream(new ByteArrayInputStream(envelope.message)));
-
-    return message;
+    try {
+      ProtocolMessage message = msgType.getDeclaredConstructor().newInstance();
+      message.read(new JBBPBitInputStream(new ByteArrayInputStream(envelope.message)));
+      return message;
+    } catch (Exception e) {
+      throw new DatabaseProtocolException("failed to instantiade protocol message", e);
+    }
   }
 
 
-  public MessageEnvelope serialize(ProtocolMessage message) throws Exception {
+  public MessageEnvelope serialize(ProtocolMessage message) throws IOException {
 
     char msgType = Optional.ofNullable(requestRegistry.get(message.getClass()))
         .orElseThrow(() -> new IllegalArgumentException("Unregistered message class: " + message.getClass()));

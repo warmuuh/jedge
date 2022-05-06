@@ -1,35 +1,33 @@
 package com.github.warmuuh.jedge.db.flow;
 
-import com.github.warmuuh.jedge.db.flow.MessageFlow.FlowStep;
-import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponse;
-import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLInitialResponseImpl;
-import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponse;
-import com.github.warmuuh.jedge.db.protocol.AuthenticationSASLResponseImpl;
 import com.github.warmuuh.jedge.db.protocol.CommandCompleteImpl;
 import com.github.warmuuh.jedge.db.protocol.ExecuteScriptImpl;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
-import com.ongres.scram.client.ScramSession.ClientFinalProcessor;
-import com.ongres.scram.client.ScramSession.ServerFirstProcessor;
 import java.util.List;
-import java.util.Optional;
-import lombok.SneakyThrows;
-import lombok.experimental.Delegate;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ScriptFlow {
+public class ScriptFlow implements Flow<String> {
 
-  @Delegate
-  private final MessageFlow flow;
+  @Getter
+  private final List<? extends ProtocolMessage> initialStep;
 
+  @Getter
+  private final List<FlowStep> steps;
+  private String status;
 
   public ScriptFlow(String script) {
-    flow = new MessageFlow(
-        () -> List.of(ExecuteScriptImpl.of(script)),
-        FlowStep.one(CommandCompleteImpl.class, resp -> {
-          log.info("Received result: {}", resp.getStatus());
-          return List.<ProtocolMessage>of();
-        }));
+    initialStep = List.of(ExecuteScriptImpl.of(script));
+    steps = List.of(FlowStep.one(CommandCompleteImpl.class, resp -> {
+      status = resp.getStatus();
+      log.info("Received result: {}", status);
+      return List.<ProtocolMessage>of();
+    }));
   }
 
+  @Override
+  public String getResult() {
+    return status;
+  }
 }
