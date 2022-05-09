@@ -17,7 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Jedge<T> implements Closeable {
 
-  private final WireFormat<T> wireFormat;
+  private final WireFormat wireFormat;
+  private final TypeRegistry<T> typeRegistry;
   private Connection connection;
   private BlockingFlowExecutor flowExecutor = new BlockingFlowExecutor();
 
@@ -33,18 +34,18 @@ public class Jedge<T> implements Closeable {
 
 
   public Optional<T> querySingle(String query) {
-    GranularFlow flow = new GranularFlow(query, wireFormat, Cardinality.AT_MOST_ONE);
+    GranularFlow flow = new GranularFlow(query, wireFormat, typeRegistry, Cardinality.AT_MOST_ONE);
     GranularFlowResult result = flow.getResult();
     return result.getDataChunks().stream()
         .findAny()
-        .map(wireFormat::convertResult);
+        .map(typeRegistry::convertResult);
   }
 
   public List<T> queryList(String query) throws DatabaseProtocolException, IOException {
-    GranularFlow flow = new GranularFlow(query, wireFormat, Cardinality.MANY);
+    GranularFlow flow = new GranularFlow(query, wireFormat, typeRegistry, Cardinality.MANY);
     GranularFlowResult result = flowExecutor.run(flow, connection);
     return result.getDataChunks().stream()
-        .map(wireFormat::convertResult)
+        .map(typeRegistry::convertResult)
         .collect(Collectors.toList());
   }
 

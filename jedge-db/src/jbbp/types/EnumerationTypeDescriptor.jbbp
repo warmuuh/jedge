@@ -1,0 +1,3 @@
+uuid id;
+ushort member_count;
+string[member_count] members;

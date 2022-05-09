@@ -1,0 +1,11 @@
+// An empty tuple type descriptor has an ID of 00000000-0000-0000-0000-0000000000FF
+uuid id;
+ushort type_pos;
+
+// The number of array dimensions, at least 1.
+ushort dimension_count;
+
+// Sizes of array dimensions, -1 indicates
+// unbound dimension.
+int[dimension_count] dimensions;
+

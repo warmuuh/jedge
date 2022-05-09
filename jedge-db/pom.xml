@@ -36,9 +36,25 @@
         <version>${jbpp.version}</version>
         <executions>
           <execution>
+            <id>gen-jbbp-types-src</id>
+            <configuration>
+              <packageName>com.github.warmuuh.jedge.db.protocol.types</packageName>
+              <includes>types/*.jbbp</includes>
+              <customTypes>
+                <customType>string</customType>
+                <customType>uuid</customType>
+              </customTypes>
+              <interfaces>com.github.warmuuh.jedge.db.protocol.types.TypeDescriptor</interfaces>
+            </configuration>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+          <execution>
             <id>gen-jbbp-src</id>
             <configuration>
               <packageName>com.github.warmuuh.jedge.db.protocol</packageName>
+              <includes>*.jbbp</includes>
               <customTypes>
                 <customType>string</customType>
                 <customType>uuid</customType>

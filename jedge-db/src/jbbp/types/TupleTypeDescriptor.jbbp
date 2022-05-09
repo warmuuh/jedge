@@ -1,0 +1,6 @@
+// An empty tuple type descriptor has an ID of 00000000-0000-0000-0000-0000000000FF
+uuid id;
+ushort base_type_pos;
+ushort element_count;
+ushort[element_count] element_types;
+
