@@ -1,5 +1,6 @@
 package com.github.warmuuh.jedge.db.flow;
 
+import com.github.warmuuh.jedge.DatabaseProtocolException;
 import com.github.warmuuh.jedge.TypeRegistry;
 import com.github.warmuuh.jedge.WireFormat;
 import com.github.warmuuh.jedge.db.flow.GranularFlow.GranularFlowResult;
@@ -13,7 +14,10 @@ import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl.Cardinality;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.github.warmuuh.jedge.db.protocol.SyncMessage;
+import com.github.warmuuh.jedge.db.protocol.types.DescriptorEnvelope;
+import com.github.warmuuh.jedge.db.protocol.types.TypeDescriptor;
 import com.github.warmuuh.jedge.db.protocol.types.TypeDescriptorSerde;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
@@ -30,6 +34,8 @@ public class GranularFlow implements Flow<GranularFlowResult> {
 
   List<byte[]> dataChunks = new LinkedList<>();
   boolean finished = false;
+  String outputType;
+
   TypeDescriptorSerde typeDescriptorSerde = new TypeDescriptorSerde();
 
   public GranularFlow(String script, WireFormat wireFormat, TypeRegistry typeRegistry, Cardinality cardinality) {
@@ -38,6 +44,7 @@ public class GranularFlow implements Flow<GranularFlowResult> {
     steps = List.of(
         FlowStep.one(PrepareCompleteImpl.class, resp -> {
           log.info("Received prepare complete. cardinality {}", resp.getCardinality());
+          outputType = resp.getOutputTypeId();
           if (!typeRegistry.isTypeKnown(resp.getInputTypeId())
               || !typeRegistry.isTypeKnown(resp.getOutputTypeId())) {
             return List.of(DescribeStatementImpl.of(commandName), SyncMessage.INSTANCE);
@@ -46,8 +53,10 @@ public class GranularFlow implements Flow<GranularFlowResult> {
         }),
         FlowStep.optional(CommandDataDescriptionImpl.class, resp -> {
           log.info("Received command data description. output type id: " + resp.getOutputTypeId());
-
-          readDescriptors(resp.)
+          List<TypeDescriptor> inputTypeDescriptors = typeDescriptorSerde.readDescriptors(resp.input_typedesc);
+          typeRegistry.registerType(resp.getInputTypeId(), inputTypeDescriptors);
+          List<TypeDescriptor> outputTypeDescriptors = typeDescriptorSerde.readDescriptors(resp.output_typedesc);
+          typeRegistry.registerType(resp.getInputTypeId(), outputTypeDescriptors);
           return List.of(ExecuteImpl.of(commandName, ""), SyncMessage.INSTANCE);
         }),
 
@@ -63,15 +72,15 @@ public class GranularFlow implements Flow<GranularFlowResult> {
         }));
   }
 
-
   @Override
   public GranularFlowResult getResult() {
-    return new GranularFlowResult(dataChunks, finished);
+    return new GranularFlowResult(dataChunks, outputType, finished);
   }
 
   @Value
   public static class GranularFlowResult {
     List<byte[]> dataChunks;
+    String outputType;
     boolean finished;
   }
 

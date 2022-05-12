@@ -12,6 +12,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CompositeReader implements CustomTypeReaderWriter{
 
+  public static CompositeReader INSTANCE = new CompositeReader(Map.of(
+      "string", new StringReader(),
+      "uuid", new UuidReader()
+  ));
+
   private final Map<String, CustomTypeReaderWriter> typeReaders;
 
 
