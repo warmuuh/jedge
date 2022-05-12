@@ -3,7 +3,6 @@ package com.github.warmuuh.jedge.orm;
 import com.github.warmuuh.jedge.DeserializationException;
 import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
-import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -18,6 +17,9 @@ public interface TypeMapper {
       try {
 
         int length = reader.readInt(JBBPByteOrder.BIG_ENDIAN);
+        if (length <= 0 ) {
+          return null;
+        }
         long highByte = reader.readLong(JBBPByteOrder.BIG_ENDIAN);
         long lowByte = reader.readLong(JBBPByteOrder.BIG_ENDIAN);
         return new UUID(highByte, lowByte);
@@ -26,6 +28,7 @@ public interface TypeMapper {
       }
     }
   }
+
   class LongTypeMapper implements TypeMapper {
 
     @Override
@@ -33,8 +36,9 @@ public interface TypeMapper {
       try {
 
         int length = reader.readInt(JBBPByteOrder.BIG_ENDIAN);
-        if (length <= 0 )
+        if (length <= 0 ) {
           return null;
+        }
 
         return Long.valueOf(reader.readLong(JBBPByteOrder.BIG_ENDIAN));
       } catch (IOException e) {
@@ -49,6 +53,10 @@ public interface TypeMapper {
     public String mapType(Class<?> type, JBBPBitInputStream reader) throws DeserializationException {
       try {
         int strLen = reader.readInt(JBBPByteOrder.BIG_ENDIAN);
+        if (strLen < 0 ) {
+          return null;
+        }
+
         byte[] bytes = reader.readByteArray(strLen);
         return new String(bytes);
       } catch (IOException e) {
