@@ -1,6 +1,8 @@
 # Jedge
 unofficial edgedb database connector 
 
+(!) CAUTION: this library is work in progress and nowhere near production-ready (even simple parsers for basic types are missing right now)
+
 ## details
 This package contains a database connector for [edgedb](https://www.edgedb.com/) in java. 
 
