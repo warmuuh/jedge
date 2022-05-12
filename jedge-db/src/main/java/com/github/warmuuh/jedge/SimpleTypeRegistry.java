@@ -20,4 +20,9 @@ public class SimpleTypeRegistry implements TypeRegistry {
   public void registerType(String inputTypeId, List<TypeDescriptor> inputTypeDescriptors) {
     typeDescriptors.put(inputTypeId, inputTypeDescriptors);
   }
+
+  @Override
+  public Optional<List<TypeDescriptor>> getTypeDescriptors(String typeId) {
+    return Optional.ofNullable(typeDescriptors.get(typeId));
+  }
 }

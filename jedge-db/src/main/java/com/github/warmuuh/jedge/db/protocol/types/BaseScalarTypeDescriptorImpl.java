@@ -1,6 +1,7 @@
 package com.github.warmuuh.jedge.db.protocol.types;
 
 import com.github.warmuuh.jedge.db.protocol.reader.CompositeReader;
+import com.igormaznitsa.jbbp.model.JBBPFieldString;
 import lombok.experimental.Delegate;
 
 public class BaseScalarTypeDescriptorImpl extends BaseScalarTypeDescriptor {
@@ -8,4 +9,8 @@ public class BaseScalarTypeDescriptorImpl extends BaseScalarTypeDescriptor {
   @Delegate
   CompositeReader compositeReader = CompositeReader.INSTANCE;
 
+  @Override
+  public String getId() {
+    return ((JBBPFieldString)id).getAsString();
+  }
 }

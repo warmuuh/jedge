@@ -3,6 +3,7 @@ package com.github.warmuuh.jedge.db.protocol.types;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public enum ScalarType {
   BIGINT("00000000-0000-0000-0000-000000000110"),
   RELATIVE_DURATION("00000000-0000-0000-0000-000000000111");
 
+  @Getter
   private final String typeId;
 
   private static Map<String, ScalarType> idToScalarType;

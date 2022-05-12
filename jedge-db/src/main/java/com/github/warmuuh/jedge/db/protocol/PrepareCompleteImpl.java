@@ -16,12 +16,7 @@ public class PrepareCompleteImpl extends PrepareComplete {
   ));
 
   public Cardinality getCardinality() {
-    for (Cardinality c : Cardinality.values()) {
-      if (c.id == cardinality) {
-        return c;
-      }
-    }
-    throw new IllegalArgumentException("Unknown Cardinality: " + cardinality);
+    return Cardinality.getCardinality(cardinality);
   }
 
   public String getInputTypeId() {

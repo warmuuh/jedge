@@ -14,7 +14,6 @@ import com.github.warmuuh.jedge.db.protocol.PrepareImpl;
 import com.github.warmuuh.jedge.db.protocol.PrepareImpl.Cardinality;
 import com.github.warmuuh.jedge.db.protocol.ProtocolMessage;
 import com.github.warmuuh.jedge.db.protocol.SyncMessage;
-import com.github.warmuuh.jedge.db.protocol.types.DescriptorEnvelope;
 import com.github.warmuuh.jedge.db.protocol.types.TypeDescriptor;
 import com.github.warmuuh.jedge.db.protocol.types.TypeDescriptorSerde;
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class GranularFlow implements Flow<GranularFlowResult> {
           List<TypeDescriptor> inputTypeDescriptors = typeDescriptorSerde.readDescriptors(resp.input_typedesc);
           typeRegistry.registerType(resp.getInputTypeId(), inputTypeDescriptors);
           List<TypeDescriptor> outputTypeDescriptors = typeDescriptorSerde.readDescriptors(resp.output_typedesc);
-          typeRegistry.registerType(resp.getInputTypeId(), outputTypeDescriptors);
+          typeRegistry.registerType(resp.getOutputTypeId(), outputTypeDescriptors);
           return List.of(ExecuteImpl.of(commandName, ""), SyncMessage.INSTANCE);
         }),
 

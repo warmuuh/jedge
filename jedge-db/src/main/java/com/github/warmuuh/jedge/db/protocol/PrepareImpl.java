@@ -26,6 +26,15 @@ public class PrepareImpl extends Prepare {
     MANY(0x6d),
     AT_LEAST_ONE(0x4d);
     int id;
+
+    public static Cardinality getCardinality(char value) {
+      for (Cardinality c : Cardinality.values()) {
+        if (c.id == value) {
+          return c;
+        }
+      }
+      throw new IllegalArgumentException("Unknown Cardinality: " + value);
+    }
   }
 
   public static PrepareImpl of(String script, IOFormat ioFormat, Cardinality expectedCardinality, String commandName) {

@@ -1,6 +1,6 @@
 package com.github.warmuuh.jedge;
 
-public class DeserializationException extends Exception {
+public class DeserializationException extends RuntimeException {
 
   public DeserializationException() {
   }
