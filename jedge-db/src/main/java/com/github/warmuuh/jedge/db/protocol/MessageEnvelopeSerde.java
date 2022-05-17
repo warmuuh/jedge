@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.io.IOUtils;
 
 public class MessageEnvelopeSerde {
 
@@ -45,8 +44,6 @@ public class MessageEnvelopeSerde {
   public ProtocolMessage deserialize(MessageEnvelope envelope) throws IOException, DatabaseProtocolException {
     Class<? extends ProtocolMessage> msgType = responseRegistry.get(envelope.mtype);
     if (msgType == null) {
-      System.out.println("Unknown message type: " + envelope.mtype);
-      System.out.println(IOUtils.toString(new ByteArrayInputStream(envelope.message)));
       throw new IllegalArgumentException("Unknown message type: " + envelope.mtype);
     }
     try {

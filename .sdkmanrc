@@ -1,0 +1,3 @@
+# Enable auto-env through the sdkman_auto_env config
+# Add key=value pairs of SDKs to use below
+java=zulu11.31.10-sa-jdk11.0.3-macosx_x64

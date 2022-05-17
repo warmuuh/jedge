@@ -12,6 +12,7 @@
     <module>jedge-db</module>
     <module>jedge</module>
     <module>jedge-orm</module>
+    <module>jedge-milkman</module>
   </modules>
 
   <properties>
@@ -20,22 +21,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.11.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.marianobarrios</groupId>
-      <artifactId>tls-channel</artifactId>
-      <version>0.6.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.7.31</version>
-    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>

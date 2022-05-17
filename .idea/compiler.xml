@@ -7,9 +7,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="jedge-db" />
         <module name="jedge-orm" />
         <module name="jedge" />
+        <module name="jedge-db" />
+        <module name="jedge-milkman" />
       </profile>
     </annotationProcessing>
   </component>

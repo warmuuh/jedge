@@ -1,6 +1,6 @@
 package com.github.warmuuh.jedge;
 
-public class DatabaseProtocolException extends Exception {
+public class DatabaseProtocolException extends RuntimeException {
 
   public DatabaseProtocolException() {
   }

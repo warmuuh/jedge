@@ -7,15 +7,12 @@ import com.igormaznitsa.jbbp.io.JBBPBitInputStream;
 import com.igormaznitsa.jbbp.io.JBBPBitOutputStream;
 import com.igormaznitsa.jbbp.io.JBBPByteOrder;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +26,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
 @Slf4j
 public class Connection implements Closeable {
@@ -156,8 +152,6 @@ public class Connection implements Closeable {
       }
     }};
     sslContext.init(null, trustAllCerts, null);
-    System.out.println(
-        "SSLContext :: Protocol :: " + sslContext.getProtocol() + " Provider :: " + sslContext.getProvider());
     return sslContext;
   }
 

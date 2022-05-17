@@ -76,7 +76,6 @@ public class AuthFlow implements Flow<AuthFlowResult> {
           return List.<ProtocolMessage>of();
         }),
         FlowStep.one(ServerKeyData.class, resp -> {
-          System.out.println("skd: " + new String(resp.data));
           return List.<ProtocolMessage>of();
         }),
         FlowStep.zeroOrMore(ParameterStatusImpl.class, param -> {
