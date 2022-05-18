@@ -1,3 +1,5 @@
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/warmuuh/jedge?label=latest%20release)
+
 # Jedge
 unofficial edgedb database connector 
 
