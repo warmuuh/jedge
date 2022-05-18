@@ -1,6 +1,6 @@
 # Milkman plugin for Jedge
 
-plugin to interact with Edgedb for [Milkman](http://github.com/warmuuh/milkman)
+plugin to interact with [Edgedb](https://www.edgedb.com/) for [Milkman](http://github.com/warmuuh/milkman)
 
 ## Screenshot
 

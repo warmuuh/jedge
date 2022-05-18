@@ -1,7 +1,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/warmuuh/jedge?label=latest%20release)
 
 # Jedge
-unofficial edgedb database connector 
+unofficial [Edgedb](https://www.edgedb.com/) database connector for Java 
 
 (!) CAUTION: this library is work in progress and nowhere near production-ready (even simple parsers for basic types are missing right now)
 
@@ -13,7 +13,7 @@ This package contains a database connector for [edgedb](https://www.edgedb.com/)
 * connection to edgedb via TLS/SASL Authentification
 * wireformats: json, binary
 * parser support for binary protocol
-
+* [Milkman](https://github.com/warmuuh/milkman) integration (see [readme](/jedge-milkman))
 
 ## Usage
 if you want to use binary protocol and included parsers, you can do so like this:
