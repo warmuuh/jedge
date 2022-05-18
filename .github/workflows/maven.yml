@@ -38,8 +38,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set Release version env variable
-        run: |
-          $project_version=mvn help:evaluate -Dexpression=project.version -q -DforceStdout; echo "project_version=$project_version" >> $Env:GITHUB_ENV
+        shell: bash -l {0}
+        run: echo RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
