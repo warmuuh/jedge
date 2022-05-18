@@ -8,5 +8,5 @@ plugin to interact with [Edgedb](https://www.edgedb.com/) for [Milkman](http://g
 
 ## Installation
 
-Download the latest release of `jedge-milkman` and move it to the plugin-folder of 
+Download the [latest release](https://github.com/warmuuh/jedge/releases) of `jedge-milkman` and move it to the plugin-folder of 
 your milkman installation.
