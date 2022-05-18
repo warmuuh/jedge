@@ -37,14 +37,17 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Maven project version
+        run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+        id: project
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ project.version }}
-          release_name: Release ${{ project.version }}
+          tag_name: ${{ steps.project.outputs.version }}
+          release_name: Release ${{ steps.project.outputs.version }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
