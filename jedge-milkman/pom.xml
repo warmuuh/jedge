@@ -46,6 +46,7 @@
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
           <appendAssemblyId>false</appendAssemblyId>
+          <finalName>jedge-milkman</finalName>
         </configuration>
         <executions>
           <execution>
